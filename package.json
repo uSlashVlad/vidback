@@ -1,0 +1,20 @@
+{
+  "name": "vidback",
+  "version": "0.0.1",
+  "description": "Backend of our flutter project",
+  "main": " ",
+  "scripts": {
+    "test": "ts-node src/server.ts"
+  },
+  "author": "u/vlad",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.11",
+    "@types/jsonwebtoken": "^8.5.1"
+  }
+}
