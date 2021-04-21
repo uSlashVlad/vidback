@@ -27,10 +27,16 @@ router.post('/create', async (req, res) => {
     }
 
     body.group_id = genId(1);
+    while ((await groups.findOne({ group_id: body.group_id })) != null)
+        body.group_id = genId(1);
     body.password = sha512(body.password);
     body.admin_code = sha256(body.admin_code);
     await groups.create(body);
-    res.send({ id: body.group_id });
+    res.send({
+        group_id: body.group_id,
+        name: body.name,
+        short_name: body.short_name,
+    });
 });
 
 interface ILoginData {
@@ -72,7 +78,14 @@ router.post('/login', async (req, res) => {
         return;
     }
 
-    const id = genId(2);
+    let id = genId(2);
+    while (
+        (await groups.findOne({
+            short_name: body.groupname,
+            'users.user_id': id,
+        })) != null
+    )
+        id = genId(1);
 
     gr.users.push({
         user_id: id,
