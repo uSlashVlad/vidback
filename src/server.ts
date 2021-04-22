@@ -2,6 +2,7 @@ import * as express from 'express';
 
 import { router as groupsRouter } from './routes/groups';
 import { router as linksRouter } from './routes/links';
+import { router as subjectsRouter} from './routes/subjects'
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -14,6 +15,7 @@ app.all('*', (req, _, next) => {
 
 app.use('/api/groups', groupsRouter);
 app.use('/api/links', linksRouter);
+app.use('/api/subjects', subjectsRouter);
 
 app.all('*', (_, res) => {
     res.status(404);

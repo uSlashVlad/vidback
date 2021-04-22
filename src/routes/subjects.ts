@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { links, ILink } from '../database';
+import { subjects } from '../database';
 import { jwtRead } from '../security';
 import { genId, getUser } from '../auth';
 
@@ -26,9 +26,9 @@ router.get('/', async (req, res) => {
         return;
     }
 
-    const data = await links.find(
+    const data = await subjects.find(
         { group_id: tokenData.group },
-        { _id: 0, __v: 0 }
+        { _id: 0, __v: 0, lessons: 0, homeworks: 0 }
     );
     res.send({ items: data, count: data.length });
 });
@@ -52,27 +52,19 @@ router.get('/:id', async (req, res) => {
         res.send({ error: 'this users was deleted or banned' });
         return;
     }
-    const linkId = +req.params.id;
-    if (linkId == null || isNaN(linkId)) {
+    const subjectId = +req.params.id;
+    if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
-        res.send({ error: 'no link_id specified or it is not number' });
+        res.send({ error: 'no subject_id specified or it is not number' });
         return;
     }
 
-    const thisLink = await links.findOne(
-        {
-            group_id: tokenData.group,
-            link_id: linkId,
-        },
-        { _id: 0, __v: 0 }
+    res.send(
+        await subjects.find(
+            { group_id: tokenData.group, subject_id: subjectId },
+            { _id: 0, __v: 0 }
+        )
     );
-    if (thisLink == null) {
-        res.status(400);
-        res.send({ error: 'no such link found' });
-        return;
-    }
-
-    res.send(thisLink);
 });
 
 router.post('/', async (req, res) => {
@@ -94,23 +86,35 @@ router.post('/', async (req, res) => {
         res.send({ error: 'this users was deleted or banned' });
         return;
     }
-
-    const body: ILink = req.body;
-    if (body.name == null || body.url == null) {
+    if (!user.is_group_admin) {
+        res.status(403);
+        res.send({ error: "only group's admin can create new subject" });
+        return;
+    }
+    const name: string = req.body.name;
+    if (name == null) {
         res.status(400);
-        res.send({ error: 'not enought data' });
+        res.send({ error: 'no subject name specified' });
         return;
     }
 
-    body.group_id = tokenData.group;
-    body.user_id = tokenData.user;
-    body.link_id = genId(3);
-    while ((await links.findOne({ link_id: body.link_id })) != null)
-        body.link_id = genId(3);
+    let linkId = genId(4);
+    while ((await subjects.findOne({ subject_id: linkId })) != null)
+        linkId = genId(4);
 
-    await links.create(body);
+    const newSubject = await subjects.create({
+        subject_id: linkId,
+        group_id: tokenData.group,
+        name: name,
+        lessons: [],
+        homeworks: [],
+    });
 
-    res.send(body);
+    const json = newSubject.toJSON();
+    delete json.__v;
+    delete json._id;
+
+    res.send(json);
 });
 
 router.delete('/:id', async (req, res) => {
@@ -132,33 +136,27 @@ router.delete('/:id', async (req, res) => {
         res.send({ error: 'this users was deleted or banned' });
         return;
     }
-
-    const linkId = +req.params.id;
-    if (linkId == null || isNaN(linkId)) {
+    if (!user.is_group_admin) {
+        res.status(403);
+        res.send({ error: "only group's admin can create new subject" });
+        return;
+    }
+    const subjectId = +req.params.id;
+    if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
         res.send({ error: 'no link_id specified or it is not number' });
         return;
     }
 
-    const thisLink = await links.findOne({
-        group_id: tokenData.group,
-        link_id: linkId,
-    });
-    if (thisLink == null) {
+    const thisSubject = await subjects.findOne({ subject_id: subjectId });
+    if (thisSubject == null) {
         res.status(400);
-        res.send({ error: 'no such link found' });
+        res.send({ error: 'no such subject found' });
         return;
     }
 
-    if (!user.is_group_admin && thisLink.user_id != tokenData.user) {
-        res.status(403);
-        res.send({
-            error: "only group admin or link's creator can delete the link",
-        });
-        return;
-    }
+    await thisSubject.delete();
 
-    await thisLink.delete();
     res.send({});
 });
 
@@ -181,46 +179,37 @@ router.put('/:id', async (req, res) => {
         res.send({ error: 'this users was deleted or banned' });
         return;
     }
-
-    const body: ILink = req.body;
-    if (body.name == null && body.url == null) {
-        res.status(400);
-        res.send({ error: 'no changes specified' });
+    if (!user.is_group_admin) {
+        res.status(403);
+        res.send({ error: "only group's admin can create new subject" });
         return;
     }
-
-    const linkId = +req.params.id;
-    if (linkId == null || isNaN(linkId)) {
+    const subjectId = +req.params.id;
+    if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
         res.send({ error: 'no link_id specified or it is not number' });
         return;
     }
-
-    const thisLink = await links.findOne({
-        group_id: tokenData.group,
-        link_id: linkId,
-    });
-    if (thisLink == null) {
+    const name: string = req.body.name;
+    if (name == null) {
         res.status(400);
-        res.send({ error: 'no such link found' });
+        res.send({ error: 'no changes cpecified' });
         return;
     }
 
-    if (thisLink.user_id != tokenData.user) {
-        res.status(403);
-        res.send({ error: 'only creator of link can edit it' });
+    const thisSubject = await subjects.findOne({ subject_id: subjectId });
+    if (thisSubject == null) {
+        res.status(400);
+        res.send({ error: 'no such subject found' });
         return;
     }
 
-    if (body.name != null) thisLink.name = body.name;
-    if (body.url != null) thisLink.url = body.url;
-    await thisLink.save();
+    thisSubject.name = name;
+    const data = await thisSubject.save();
 
-    // TODO maybe some optimization?
-    body.name = thisLink.name;
-    body.url = thisLink.url;
-    body.group_id = thisLink.group_id;
-    body.user_id = thisLink.user_id;
-    body.link_id = thisLink.link_id;
-    res.send(body);
+    const json = data.toJSON();
+    delete json.__v;
+    delete json._id;
+
+    res.send(json);
 });
