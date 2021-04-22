@@ -1,4 +1,7 @@
+import { Request, Response } from 'express';
+
 import { groups, IUser } from './database';
+import { jwtRead, JWTData } from './security';
 
 export async function getUser(group: number, user: number) {
     const res = await groups.aggregate([
@@ -18,4 +21,46 @@ export async function getUser(group: number, user: number) {
 
 export function genId(base: number) {
     return Math.floor((Math.random() + base) * 1000000) + 1;
+}
+
+export function checkToken(req: Request, res: Response) {
+    const token = req.headers.authorization as string;
+
+    if (token == null) {
+        res.status(400);
+        res.send({ error: 'no token specified' });
+        return null;
+    }
+    const tokenData = jwtRead(token);
+    if (tokenData == null) {
+        res.status(400);
+        res.send({ error: 'incorrect token' });
+        return null;
+    }
+
+    return tokenData;
+}
+
+export async function checkUser(res: Response, tokenData: JWTData) {
+    const user = await getUser(tokenData.group, tokenData.user);
+
+    if (user == null) {
+        res.status(403);
+        res.send({ error: 'this users was deleted or banned' });
+        return;
+    }
+
+    return user;
+}
+
+export async function checkUserAdmin(res: Response, tokenData: JWTData) {
+    const user = await checkUser(res, tokenData);
+    
+    if (!user.is_group_admin) {
+        res.status(403);
+        res.send({ error: "only group's admin can use it" });
+        return;
+    }
+
+    return user;
 }

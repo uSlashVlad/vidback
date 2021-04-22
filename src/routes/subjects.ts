@@ -1,30 +1,16 @@
 import { Router } from 'express';
 
 import { subjects } from '../database';
-import { jwtRead } from '../security';
-import { genId, getUser } from '../auth';
+import { genId, checkToken, checkUserAdmin, checkUser } from '../auth';
+
+import { router as lessonsRouter } from './lessons';
+import { router as homeworksRouter } from './homeworks';
 
 export const router = Router();
 
 router.get('/', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUser(res, tokenData);
 
     const data = await subjects.find(
         { group_id: tokenData.group },
@@ -34,24 +20,9 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUser(res, tokenData);
+
     const subjectId = +req.params.id;
     if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
@@ -68,29 +39,9 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
-    if (!user.is_group_admin) {
-        res.status(403);
-        res.send({ error: "only group's admin can create new subject" });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUserAdmin(res, tokenData);
+
     const name: string = req.body.name;
     if (name == null) {
         res.status(400);
@@ -118,29 +69,9 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
-    if (!user.is_group_admin) {
-        res.status(403);
-        res.send({ error: "only group's admin can create new subject" });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUserAdmin(res, tokenData);
+
     const subjectId = +req.params.id;
     if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
@@ -161,29 +92,9 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
-    if (!user.is_group_admin) {
-        res.status(403);
-        res.send({ error: "only group's admin can create new subject" });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUserAdmin(res, tokenData);
+
     const subjectId = +req.params.id;
     if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
@@ -213,3 +124,6 @@ router.put('/:id', async (req, res) => {
 
     res.send(json);
 });
+
+router.use('/:subjectId/lessons', lessonsRouter);
+router.use('/:subjectId/homeworks', homeworksRouter);

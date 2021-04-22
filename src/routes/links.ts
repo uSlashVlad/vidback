@@ -1,30 +1,13 @@
 import { Router } from 'express';
 
 import { links, ILink } from '../database';
-import { jwtRead } from '../security';
-import { genId, getUser } from '../auth';
+import { genId, checkToken, checkUser } from '../auth';
 
 export const router = Router();
 
 router.get('/', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUser(res, tokenData);
 
     const data = await links.find(
         { group_id: tokenData.group },
@@ -34,24 +17,9 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUser(res, tokenData);
+
     const linkId = +req.params.id;
     if (linkId == null || isNaN(linkId)) {
         res.status(400);
@@ -76,24 +44,8 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUser(res, tokenData);
 
     const body: ILink = req.body;
     if (body.name == null || body.url == null) {
@@ -114,24 +66,8 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    const user = await checkUser(res, tokenData);
 
     const linkId = +req.params.id;
     if (linkId == null || isNaN(linkId)) {
@@ -163,24 +99,8 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-    const token = req.headers.authorization as string;
-    if (token == null) {
-        res.status(400);
-        res.send({ error: 'no token specified' });
-        return;
-    }
-    const tokenData = jwtRead(token);
-    if (tokenData == null) {
-        res.status(400);
-        res.send({ error: 'incorrect token' });
-        return;
-    }
-    const user = await getUser(tokenData.group, tokenData.user);
-    if (user == null) {
-        res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
-        return;
-    }
+    const tokenData = checkToken(req, res);
+    await checkUser(res, tokenData);
 
     const body: ILink = req.body;
     if (body.name == null && body.url == null) {
