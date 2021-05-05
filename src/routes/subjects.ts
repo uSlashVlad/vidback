@@ -31,9 +31,9 @@ router.get('/:id', async (req, res) => {
     }
 
     res.send(
-        await subjects.find(
+        await subjects.findOne(
             { group_id: tokenData.group, subject_id: subjectId },
-            { _id: 0, __v: 0 }
+            { _id: 0, __v: 0, 'lessons._id': 0, 'homeworks._id': 0 }
         )
     );
 });
@@ -75,7 +75,7 @@ router.delete('/:id', async (req, res) => {
     const subjectId = +req.params.id;
     if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
-        res.send({ error: 'no link_id specified or it is not number' });
+        res.send({ error: 'no subject id specified or it is not number' });
         return;
     }
 
@@ -98,7 +98,7 @@ router.put('/:id', async (req, res) => {
     const subjectId = +req.params.id;
     if (subjectId == null || isNaN(subjectId)) {
         res.status(400);
-        res.send({ error: 'no link_id specified or it is not number' });
+        res.send({ error: 'no subject id specified or it is not number' });
         return;
     }
     const name: string = req.body.name;
