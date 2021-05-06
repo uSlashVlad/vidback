@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { subjects, ILesson } from '../database';
-import { genId, checkToken, checkUserAdmin } from '../auth';
+import { subjects, ILesson } from '../../database';
+import { genId, checkToken, checkUserAdmin } from '../../auth';
 
 export const router = Router({ mergeParams: true });
 

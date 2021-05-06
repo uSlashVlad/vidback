@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { subjects } from '../database';
-import { genId, checkToken, checkUserAdmin, checkUser } from '../auth';
+import { subjects } from '../../database';
+import { genId, checkToken, checkUserAdmin, checkUser } from '../../auth';
 
 import { router as lessonsRouter } from './lessons';
 import { router as homeworksRouter } from './homeworks';

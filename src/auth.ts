@@ -55,7 +55,7 @@ export async function checkUser(res: Response, tokenData: JWTData) {
 
 export async function checkUserAdmin(res: Response, tokenData: JWTData) {
     const user = await checkUser(res, tokenData);
-    
+
     if (!user.is_group_admin) {
         res.status(403);
         res.send({ error: "only group's admin can use it" });

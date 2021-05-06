@@ -1,8 +1,8 @@
 import { Router } from 'express';
 
-import { groups, IGroup } from '../database';
-import { sha512, sha256, jwtSign } from '../security';
-import { genId } from '../auth';
+import { groups, IGroup } from '../../database';
+import { sha512, sha256, jwtSign } from '../../security';
+import { genId } from '../../auth';
 
 export const router = Router();
 

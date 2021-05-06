@@ -1,21 +1,20 @@
 import * as express from 'express';
 
-import { router as groupsRouter } from './routes/groups';
-import { router as linksRouter } from './routes/links';
-import { router as subjectsRouter} from './routes/subjects'
+import { v0Root } from './routes/v0/root';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+const pathStart = ''; // may be "/api" for example
 
 app.all('*', (req, _, next) => {
     console.log(`${req.method}: ${req.url}`);
     next();
 });
 
-app.use('/api/groups', groupsRouter);
-app.use('/api/links', linksRouter);
-app.use('/api/subjects', subjectsRouter);
+app.use(`${pathStart}/v0`, v0Root);
+app.use(`${pathStart}/`, v0Root);
 
 app.all('*', (_, res) => {
     res.status(404);

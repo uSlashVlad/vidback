@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { links, ILink } from '../database';
-import { genId, checkToken, checkUser } from '../auth';
+import { links, ILink } from '../../database';
+import { genId, checkToken, checkUser } from '../../auth';
 
 export const router = Router();
 
