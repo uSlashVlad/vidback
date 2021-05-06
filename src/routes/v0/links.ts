@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { upload } from '../../fs';
 import { links, ILink } from '../../database';
 import { genId, checkToken, checkUser } from '../../auth';
 
@@ -7,7 +8,9 @@ export const router = Router();
 
 router.get('/', async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUser(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUser(res, tokenData);
+    if (user == null) return;
 
     const data = await links.find(
         { group_id: tokenData.group },
@@ -43,9 +46,11 @@ router.get('/:id', async (req, res) => {
     res.send(thisLink);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', upload.none(), async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUser(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUser(res, tokenData);
+    if (user == null) return;
 
     const body: ILink = req.body;
     if (body.name == null || body.url == null) {
@@ -67,7 +72,9 @@ router.post('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     const tokenData = checkToken(req, res);
+    if (tokenData == null) return;
     const user = await checkUser(res, tokenData);
+    if (user == null) return;
 
     const linkId = +req.params.id;
     if (linkId == null || isNaN(linkId)) {
@@ -98,9 +105,11 @@ router.delete('/:id', async (req, res) => {
     res.send({});
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.none(), async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUser(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUser(res, tokenData);
+    if (user == null) return;
 
     const body: ILink = req.body;
     if (body.name == null && body.url == null) {

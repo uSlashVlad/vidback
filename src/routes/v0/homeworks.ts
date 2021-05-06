@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
+import { upload } from '../../fs';
 import { subjects, IHomework } from '../../database';
-import { genId, checkToken, checkUserAdmin } from '../../auth';
+import { genId, checkToken, checkUserAdmin, checkUser } from '../../auth';
 
 // For mount point /:subjectId/homeworks
 export const idRouter = Router({ mergeParams: true });
@@ -11,7 +12,9 @@ export const allRouter = Router();
 // A bit useless because this data available from subject GET /:subjectId
 idRouter.get('/', async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUser(res, tokenData);
+    if (user == null) return;
 
     const subjectId = +req.params.subjectId;
     if (subjectId == null || isNaN(subjectId)) {
@@ -36,9 +39,11 @@ idRouter.get('/', async (req, res) => {
     res.send(thisSubject.homeworks);
 });
 
-idRouter.post('/', async (req, res) => {
+idRouter.post('/', upload.none(), async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUserAdmin(res, tokenData);
+    if (user == null) return;
 
     const subjectId = +req.params.subjectId;
     if (subjectId == null || isNaN(subjectId)) {
@@ -48,6 +53,9 @@ idRouter.post('/', async (req, res) => {
     }
 
     const body: IHomework = req.body;
+    if (typeof body.files == 'string') body.files = JSON.parse(body.files);
+    if (typeof body.week == 'string') body.week = +body.week;
+    if (typeof body.day == 'string') body.day = +body.day;
     if (body.week == null || body.day == null) {
         res.status(400);
         res.send({ error: 'not enought data' });
@@ -94,7 +102,9 @@ idRouter.post('/', async (req, res) => {
 
 idRouter.delete('/:homeworkId', async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUserAdmin(res, tokenData);
+    if (user == null) return;
 
     const subjectId = +req.params.subjectId;
     if (subjectId == null || isNaN(subjectId)) {
@@ -133,9 +143,11 @@ idRouter.delete('/:homeworkId', async (req, res) => {
     res.send({});
 });
 
-idRouter.put('/:homeworkId', async (req, res) => {
+idRouter.put('/:homeworkId', upload.none(), async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUserAdmin(res, tokenData);
+    if (user == null) return;
 
     const subjectId = +req.params.subjectId;
     if (subjectId == null || isNaN(subjectId)) {
@@ -152,7 +164,11 @@ idRouter.put('/:homeworkId', async (req, res) => {
     }
 
     const body: IHomework = req.body;
-    console.log(body);
+    if (body.files != null && typeof body.files == 'string')
+        body.files = JSON.parse(body.files);
+    if (body.week != null && typeof body.week == 'string')
+        body.week = +body.week;
+    if (body.day != null && typeof body.day == 'string') body.day = +body.day;
     if (
         body.week == null &&
         body.day == null &&
@@ -209,7 +225,9 @@ idRouter.put('/:homeworkId', async (req, res) => {
 // For getting homeworks for specified week (and day)
 allRouter.get('/', async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUser(res, tokenData);
+    if (user == null) return;
 
     const weekNumber = +req.query.week;
     if (weekNumber == null || isNaN(weekNumber)) {

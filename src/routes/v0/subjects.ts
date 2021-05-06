@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { upload } from '../../fs';
 import { subjects } from '../../database';
 import { genId, checkToken, checkUserAdmin, checkUser } from '../../auth';
 
@@ -22,7 +23,9 @@ router.use('/:subjectId/homeworks', subHomeworksRouter);
 
 router.get('/', async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUser(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUser(res, tokenData);
+    if (user == null) return;
 
     const data = await subjects.find(
         { group_id: tokenData.group },
@@ -50,9 +53,11 @@ router.get('/:id', async (req, res) => {
     );
 });
 
-router.post('/', async (req, res) => {
+router.post('/', upload.none(), async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUserAdmin(res, tokenData);
+    if (user == null) return;
 
     const name: string = req.body.name;
     if (name == null) {
@@ -82,7 +87,9 @@ router.post('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUserAdmin(res, tokenData);
+    if (user == null) return;
 
     const subjectId = +req.params.id;
     if (subjectId == null || isNaN(subjectId)) {
@@ -103,9 +110,11 @@ router.delete('/:id', async (req, res) => {
     res.send({});
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.none(), async (req, res) => {
     const tokenData = checkToken(req, res);
-    await checkUserAdmin(res, tokenData);
+    if (tokenData == null) return;
+    const user = await checkUserAdmin(res, tokenData);
+    if (user == null) return;
 
     const subjectId = +req.params.id;
     if (subjectId == null || isNaN(subjectId)) {

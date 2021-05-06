@@ -1,6 +1,5 @@
 import { createHash } from 'crypto';
 import { sign, verify } from 'jsonwebtoken';
-import * as config from '../config.json';
 
 export function sha512(content: string) {
     return createHash('sha512').update(content).digest('hex');
@@ -16,7 +15,7 @@ export interface JWTData {
 }
 
 export function jwtSign(content: JWTData) {
-    return sign(content, config.secretSign);
+    return sign(content, process.env.SECRET_SIGN);
 }
 
 export function jwtRead(authHeader: string) {
@@ -25,6 +24,6 @@ export function jwtRead(authHeader: string) {
         return null;
     } else {
         const token = header[1];
-        return verify(token, config.secretSign) as JWTData;
+        return verify(token, process.env.SECRET_SIGN) as JWTData;
     }
 }

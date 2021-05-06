@@ -1,12 +1,13 @@
 import { Router } from 'express';
 
+import { upload } from '../../fs';
 import { groups, IGroup } from '../../database';
 import { sha512, sha256, jwtSign } from '../../security';
 import { genId } from '../../auth';
 
 export const router = Router();
 
-router.post('/create', async (req, res) => {
+router.post('/create', upload.none(), async (req, res) => {
     const body: IGroup = req.body;
     if (
         body.name == null ||
@@ -36,6 +37,8 @@ router.post('/create', async (req, res) => {
     const json = newGroup.toJSON();
     delete json.__v;
     delete json._id;
+    delete json.password;
+    delete json.admin_code;
 
     res.send(json);
 });
@@ -47,9 +50,8 @@ interface ILoginData {
     admin_code?: string;
 }
 
-router.post('/login', async (req, res) => {
+router.post('/login', upload.none(), async (req, res) => {
     const body: ILoginData = req.body;
-    console.log(req.body);
     if (
         body.groupname == null ||
         body.password == null ||

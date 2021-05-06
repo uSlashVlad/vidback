@@ -1,4 +1,6 @@
 import * as express from 'express';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 import { v0Root } from './routes/v0/root';
 
@@ -21,6 +23,6 @@ app.all('*', (_, res) => {
     res.send({ error: 'No such method found' });
 });
 
-app.listen(8080, () => {
+app.listen(process.env.SERVER_PORT, () => {
     console.log('Express started');
 });

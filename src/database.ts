@@ -1,8 +1,13 @@
 import { connect, connection, Schema, model, Document } from 'mongoose';
 
-import * as config from '../config.json';
+const protocol = process.env.MONGODB_PROTOCOL;
+const user = process.env.MONGODB_USER;
+const password = process.env.MONGODB_PASSWORD;
+const domain = process.env.MONGODB_DOMAIN;
+const database = process.env.MONDODB_DATABASE;
+const connectionUrl = `${protocol}://${user}:${password}@${domain}/${database}?authSource=admin`;
 
-connect(config.mongodb, {
+connect(connectionUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });

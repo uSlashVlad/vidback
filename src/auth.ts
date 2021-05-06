@@ -27,13 +27,13 @@ export function checkToken(req: Request, res: Response) {
     const token = req.headers.authorization as string;
 
     if (token == null) {
-        res.status(400);
+        res.status(401);
         res.send({ error: 'no token specified' });
         return null;
     }
     const tokenData = jwtRead(token);
     if (tokenData == null) {
-        res.status(400);
+        res.status(401);
         res.send({ error: 'incorrect token' });
         return null;
     }
@@ -56,7 +56,7 @@ export async function checkUser(res: Response, tokenData: JWTData) {
 export async function checkUserAdmin(res: Response, tokenData: JWTData) {
     const user = await checkUser(res, tokenData);
 
-    if (!user.is_group_admin) {
+    if (user == null || !user.is_group_admin) {
         res.status(403);
         res.send({ error: "only group's admin can use it" });
         return;
