@@ -3,10 +3,22 @@ import { Router } from 'express';
 import { subjects } from '../../database';
 import { genId, checkToken, checkUserAdmin, checkUser } from '../../auth';
 
-import { router as lessonsRouter } from './lessons';
-import { router as homeworksRouter } from './homeworks';
+import {
+    idRouter as subLessonsRouter,
+    allRouter as allLessonsRouter,
+} from './lessons';
+import {
+    idRouter as subHomeworksRouter,
+    allRouter as allHomeworksRouter,
+} from './homeworks';
 
 export const router = Router();
+
+// It was inserted before subject's routes because of conflicts
+router.use('/lessons', allLessonsRouter);
+router.use('/:subjectId/lessons', subLessonsRouter);
+router.use('/homeworks', allHomeworksRouter);
+router.use('/:subjectId/homeworks', subHomeworksRouter);
 
 router.get('/', async (req, res) => {
     const tokenData = checkToken(req, res);
@@ -124,6 +136,3 @@ router.put('/:id', async (req, res) => {
 
     res.send(json);
 });
-
-router.use('/:subjectId/lessons', lessonsRouter);
-router.use('/:subjectId/homeworks', homeworksRouter);

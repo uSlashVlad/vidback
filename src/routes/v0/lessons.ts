@@ -3,9 +3,13 @@ import { Router } from 'express';
 import { subjects, ILesson } from '../../database';
 import { genId, checkToken, checkUserAdmin } from '../../auth';
 
-export const router = Router({ mergeParams: true });
+// For mount point /:subjectId/lessons
+export const idRouter = Router({ mergeParams: true });
+// For mount point /lessons
+export const allRouter = Router();
 
-router.get('/', async (req, res) => {
+// A bit useless because this data available from subject GET /:subjectId
+idRouter.get('/', async (req, res) => {
     const tokenData = checkToken(req, res);
     await checkUserAdmin(res, tokenData);
 
@@ -16,10 +20,13 @@ router.get('/', async (req, res) => {
         return;
     }
 
-    const thisSubject = await subjects.findOne({
-        group_id: tokenData.group,
-        subject_id: subjectId,
-    });
+    const thisSubject = await subjects.findOne(
+        {
+            group_id: tokenData.group,
+            subject_id: subjectId,
+        },
+        { 'lessons._id': 0 }
+    );
     if (thisSubject == null) {
         res.status(400);
         res.send({ error: 'no such subject exists' });
@@ -29,7 +36,7 @@ router.get('/', async (req, res) => {
     res.send(thisSubject.lessons);
 });
 
-router.post('/', async (req, res) => {
+idRouter.post('/', async (req, res) => {
     const tokenData = checkToken(req, res);
     await checkUserAdmin(res, tokenData);
 
@@ -52,10 +59,10 @@ router.post('/', async (req, res) => {
         return;
     }
 
-    let okWeeks: boolean = true,
-        okDay: boolean = true,
-        okNum: boolean = true,
-        okType: boolean = true;
+    let okWeeks = true,
+        okDay = true,
+        okNum = true,
+        okType = true;
     if (body.weeks.length == 0) okWeeks = false;
     if (okWeeks) {
         for (let i = 0; i < body.weeks.length; i++) {
@@ -77,7 +84,7 @@ router.post('/', async (req, res) => {
 
     if (!okWeeks || !okDay || !okNum || !okType) {
         res.status(400);
-        res.send({ error: `incorrect data` }); // TODO maybe some advanced fields errors
+        res.send({ error: 'incorrect data' }); // TODO maybe some advanced fields errors
         return;
     }
 
@@ -98,8 +105,9 @@ router.post('/', async (req, res) => {
             subject_id: subjectId,
             'lessons.lesson_id': body.lesson_id,
         })) != null
-    )
+    ) {
         body.lesson_id = genId(5);
+    }
 
     data.lessons.push(body);
     await data.save();
@@ -107,7 +115,7 @@ router.post('/', async (req, res) => {
     res.send(body);
 });
 
-router.delete('/:lessonId', async (req, res) => {
+idRouter.delete('/:lessonId', async (req, res) => {
     const tokenData = checkToken(req, res);
     await checkUserAdmin(res, tokenData);
 
@@ -119,7 +127,7 @@ router.delete('/:lessonId', async (req, res) => {
     }
 
     const lessonId = +req.params.lessonId;
-    if (lessonId == null || isNaN(subjectId)) {
+    if (lessonId == null || isNaN(lessonId)) {
         res.status(400);
         res.send({ error: 'no lesson id specified or it is not number' });
         return;
@@ -148,7 +156,7 @@ router.delete('/:lessonId', async (req, res) => {
     res.send({});
 });
 
-router.put('/:lessonId', async (req, res) => {
+idRouter.put('/:lessonId', async (req, res) => {
     const tokenData = checkToken(req, res);
     await checkUserAdmin(res, tokenData);
 
@@ -160,7 +168,7 @@ router.put('/:lessonId', async (req, res) => {
     }
 
     const lessonId = +req.params.lessonId;
-    if (lessonId == null || isNaN(subjectId)) {
+    if (lessonId == null || isNaN(lessonId)) {
         res.status(400);
         res.send({ error: 'no lesson id specified or it is not number' });
         return;
@@ -204,17 +212,20 @@ router.put('/:lessonId', async (req, res) => {
     )
         okType = false;
 
-    if (!okWeeks && !okDay && !okNum && !okType) {
+    if (!okWeeks || !okDay || !okNum || !okType) {
         res.status(400);
         res.send({ error: `incorrect data` }); // TODO maybe some advanced fields errors
         return;
     }
 
-    const thisSubject = await subjects.findOne({
-        group_id: tokenData.group,
-        subject_id: subjectId,
-        'lessons.lesson_id': lessonId,
-    });
+    const thisSubject = await subjects.findOne(
+        {
+            group_id: tokenData.group,
+            subject_id: subjectId,
+            'lessons.lesson_id': lessonId,
+        },
+        { 'lessons._id': 0 }
+    );
     if (thisSubject == null) {
         res.status(400);
         res.send({ error: 'no such lesson exists' });
@@ -222,20 +233,56 @@ router.put('/:lessonId', async (req, res) => {
     }
 
     const l = thisSubject.lessons;
+    let result: ILesson;
     for (let i = 0; i < l.length; i++) {
         if (l[i].lesson_id == lessonId) {
             if (body.weeks != null) l[i].weeks = body.weeks;
             if (body.day != null) l[i].day = body.day;
             if (body.num != null) l[i].num = body.num;
             if (body.type != null) l[i].type = body.type;
+            result = l[i];
             break;
         }
     }
     await thisSubject.save();
 
-    const json = thisSubject.toJSON();
-    delete json._id;
-    delete json.__v;
+    res.send(result);
+});
 
-    res.send(json);
+// For getting lessons for specified week (and day)
+allRouter.get('/', async (req, res) => {
+    const tokenData = checkToken(req, res);
+    await checkUserAdmin(res, tokenData);
+
+    const weekNumber = +req.query.week;
+    if (weekNumber == null || isNaN(weekNumber)) {
+        res.status(400);
+        res.send({ error: 'no week number specified or it is not number' });
+        return;
+    }
+
+    const dayNumber = +req.query.day;
+    if (dayNumber == null || isNaN(dayNumber)) {
+        res.send(
+            await subjects.find(
+                {
+                    group_id: tokenData.group,
+                    'lessons.weeks': { $in: [weekNumber] },
+                },
+                { _id: 0, __v: 0, 'lessons._id': 0, homeworks: 0 }
+            )
+        );
+        return;
+    }
+
+    res.send(
+        await subjects.find(
+            {
+                group_id: tokenData.group,
+                'lessons.weeks': { $in: [weekNumber] },
+                'lessons.day': dayNumber,
+            },
+            { _id: 0, __v: 0, 'lessons._id': 0, homeworks: 0 }
+        )
+    );
 });

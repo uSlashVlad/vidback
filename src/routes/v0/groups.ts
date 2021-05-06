@@ -49,7 +49,7 @@ interface ILoginData {
 
 router.post('/login', async (req, res) => {
     const body: ILoginData = req.body;
-    console.log(req.body)
+    console.log(req.body);
     if (
         body.groupname == null ||
         body.password == null ||

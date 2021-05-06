@@ -22,5 +22,5 @@ app.all('*', (_, res) => {
 });
 
 app.listen(8080, () => {
-    console.log('express started');
+    console.log('Express started');
 });
