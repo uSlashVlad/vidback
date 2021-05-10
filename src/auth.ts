@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
+import { customAlphabet } from 'nanoid';
 
 import { groups, IUser } from './database';
 import { jwtRead, JWTData } from './security';
 
-export async function getUser(group: number, user: number) {
+export async function getUser(group: string, user: string) {
     const res = await groups.aggregate([
         { $unwind: '$users' },
         { $match: { group_id: group, 'users.user_id': user } },
@@ -19,8 +20,11 @@ export async function getUser(group: number, user: number) {
     return res[0] as IUser;
 }
 
-export function genId(base: number) {
-    return Math.floor((Math.random() + base) * 1000000) + 1;
+const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const nanoid = customAlphabet(alphabet, 14);
+
+export function genId(base: string) {
+    return base + nanoid();
 }
 
 export function checkToken(req: Request, res: Response) {

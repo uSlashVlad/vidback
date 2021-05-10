@@ -10,8 +10,8 @@ export function sha256(content: string) {
 }
 
 export interface JWTData {
-    group: number;
-    user: number;
+    group: string;
+    user: string;
 }
 
 export function jwtSign(content: JWTData) {

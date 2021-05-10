@@ -23,10 +23,10 @@ router.get('/:id', async (req, res) => {
     const tokenData = checkToken(req, res);
     await checkUser(res, tokenData);
 
-    const linkId = +req.params.id;
-    if (linkId == null || isNaN(linkId)) {
+    const linkId = req.params.id;
+    if (linkId == null) {
         res.status(400);
-        res.send({ error: 'no link_id specified or it is not number' });
+        res.send({ error: 'no link_id specified' });
         return;
     }
 
@@ -61,9 +61,7 @@ router.post('/', upload.none(), async (req, res) => {
 
     body.group_id = tokenData.group;
     body.user_id = tokenData.user;
-    body.link_id = genId(3);
-    while ((await links.findOne({ link_id: body.link_id })) != null)
-        body.link_id = genId(3);
+    body.link_id = genId('3');
 
     await links.create(body);
 
@@ -76,10 +74,10 @@ router.delete('/:id', async (req, res) => {
     const user = await checkUser(res, tokenData);
     if (user == null) return;
 
-    const linkId = +req.params.id;
-    if (linkId == null || isNaN(linkId)) {
+    const linkId = req.params.id;
+    if (linkId == null) {
         res.status(400);
-        res.send({ error: 'no link_id specified or it is not number' });
+        res.send({ error: 'no link_id specified' });
         return;
     }
 
@@ -118,10 +116,10 @@ router.put('/:id', upload.none(), async (req, res) => {
         return;
     }
 
-    const linkId = +req.params.id;
-    if (linkId == null || isNaN(linkId)) {
+    const linkId = req.params.id;
+    if (linkId == null) {
         res.status(400);
-        res.send({ error: 'no link_id specified or it is not number' });
+        res.send({ error: 'no link_id specified' });
         return;
     }
 

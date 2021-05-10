@@ -38,10 +38,10 @@ router.get('/:id', async (req, res) => {
     const tokenData = checkToken(req, res);
     await checkUser(res, tokenData);
 
-    const subjectId = +req.params.id;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.id;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject_id specified or it is not number' });
+        res.send({ error: 'no subject_id specified' });
         return;
     }
 
@@ -66,9 +66,7 @@ router.post('/', upload.none(), async (req, res) => {
         return;
     }
 
-    let linkId = genId(4);
-    while ((await subjects.findOne({ subject_id: linkId })) != null)
-        linkId = genId(4);
+    let linkId = genId('4');
 
     const newSubject = await subjects.create({
         subject_id: linkId,
@@ -91,10 +89,10 @@ router.delete('/:id', async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.id;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.id;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
@@ -116,10 +114,10 @@ router.put('/:id', upload.none(), async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.id;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.id;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
     const name: string = req.body.name;

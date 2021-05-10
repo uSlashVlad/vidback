@@ -16,10 +16,10 @@ idRouter.get('/', async (req, res) => {
     const user = await checkUser(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
@@ -45,10 +45,10 @@ idRouter.post('/', upload.none(), async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
@@ -83,16 +83,7 @@ idRouter.post('/', upload.none(), async (req, res) => {
         return;
     }
 
-    body.homework_id = genId(6);
-    while (
-        (await subjects.findOne({
-            group_id: tokenData.group,
-            subject_id: subjectId,
-            'homeworks.homework_id': body.homework_id,
-        })) != null
-    ) {
-        body.homework_id = genId(6);
-    }
+    body.homework_id = genId('6');
 
     data.homeworks.push(body);
     await data.save();
@@ -106,17 +97,17 @@ idRouter.delete('/:homeworkId', async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
-    const homeworkId = +req.params.homeworkId;
-    if (homeworkId == null || isNaN(homeworkId)) {
+    const homeworkId = req.params.homeworkId;
+    if (homeworkId == null) {
         res.status(400);
-        res.send({ error: 'no homework id specified or it is not number' });
+        res.send({ error: 'no homework id specifiedr' });
         return;
     }
 
@@ -149,17 +140,17 @@ idRouter.put('/:homeworkId', upload.none(), async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
-    const homeworkId = +req.params.homeworkId;
-    if (homeworkId == null || isNaN(homeworkId)) {
+    const homeworkId = req.params.homeworkId;
+    if (homeworkId == null) {
         res.status(400);
-        res.send({ error: 'no homework id specified or it is not number' });
+        res.send({ error: 'no homework id specified' });
         return;
     }
 
@@ -232,7 +223,7 @@ allRouter.get('/', async (req, res) => {
     const weekNumber = +req.query.week;
     if (weekNumber == null || isNaN(weekNumber)) {
         res.status(400);
-        res.send({ error: 'no week number specified or it is not number' });
+        res.send({ error: 'no week number specified' });
         return;
     }
 

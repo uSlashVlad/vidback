@@ -16,10 +16,10 @@ idRouter.get('/', async (req, res) => {
     const user = await checkUser(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
@@ -45,10 +45,10 @@ idRouter.post('/', upload.none(), async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
@@ -106,16 +106,7 @@ idRouter.post('/', upload.none(), async (req, res) => {
         return;
     }
 
-    body.lesson_id = genId(5);
-    while (
-        (await subjects.findOne({
-            group_id: tokenData.group,
-            subject_id: subjectId,
-            'lessons.lesson_id': body.lesson_id,
-        })) != null
-    ) {
-        body.lesson_id = genId(5);
-    }
+    body.lesson_id = genId('5');
 
     data.lessons.push(body);
     await data.save();
@@ -129,17 +120,17 @@ idRouter.delete('/:lessonId', async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
-    const lessonId = +req.params.lessonId;
-    if (lessonId == null || isNaN(lessonId)) {
+    const lessonId = req.params.lessonId;
+    if (lessonId == null) {
         res.status(400);
-        res.send({ error: 'no lesson id specified or it is not number' });
+        res.send({ error: 'no lesson id specified' });
         return;
     }
 
@@ -172,17 +163,17 @@ idRouter.put('/:lessonId', upload.none(), async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const subjectId = +req.params.subjectId;
-    if (subjectId == null || isNaN(subjectId)) {
+    const subjectId = req.params.subjectId;
+    if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
-    const lessonId = +req.params.lessonId;
-    if (lessonId == null || isNaN(lessonId)) {
+    const lessonId = req.params.lessonId;
+    if (lessonId == null) {
         res.status(400);
-        res.send({ error: 'no lesson id specified or it is not number' });
+        res.send({ error: 'no lesson id specified' });
         return;
     }
 
@@ -275,7 +266,7 @@ allRouter.get('/', async (req, res) => {
     const weekNumber = +req.query.week;
     if (weekNumber == null || isNaN(weekNumber)) {
         res.status(400);
-        res.send({ error: 'no week number specified or it is not number' });
+        res.send({ error: 'no week number specified' });
         return;
     }
 

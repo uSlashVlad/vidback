@@ -22,5 +22,5 @@ app.all('*', (_, res) => {
 });
 
 app.listen(process.env.SERVER_PORT, () => {
-    console.log('Express started');
+    console.log(`Express started at port ${process.env.SERVER_PORT}`);
 });

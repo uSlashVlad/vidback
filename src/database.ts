@@ -20,19 +20,19 @@ db.once('open', () => console.log('Connected to DB!'));
 // -- Data models for groups --
 // ----------------------------
 const userSchema = new Schema({
-    user_id: Number,
+    user : String,
     username: String,
     is_group_admin: Boolean,
 });
 
 export interface IUser {
-    user_id: number;
+    user_id: string;
     username: string;
     is_group_admin: boolean;
 }
 
 const groupSchema = new Schema({
-    group_id: Number,
+    group_id: String,
     name: String,
     short_name: String,
     password: String,
@@ -42,7 +42,7 @@ const groupSchema = new Schema({
 });
 
 export interface IGroup {
-    group_id: number;
+    group_id: string;
     name: string;
     short_name: string;
     password: string;
@@ -59,17 +59,17 @@ export const groups = model<IGroupDocument>('Group', groupSchema, 'groups');
 // -- Data models for links --
 // ---------------------------
 const linkSchema = new Schema({
-    link_id: Number,
-    group_id: Number,
-    user_id: Number,
+    link_id: String,
+    group_id: String,
+    user_id: String,
     url: String,
     name: String,
 });
 
 export interface ILink {
-    link_id: number;
-    group_id: number;
-    user_id: number;
+    link_id: string;
+    group_id: string;
+    user_id: string;
     url: string;
     name: string;
 }
@@ -82,7 +82,7 @@ export const links = model<ILinkDocument>('Link', linkSchema, 'links');
 // -- Data models for subjects --
 // ------------------------------
 const lessonSchema = new Schema({
-    lesson_id: Number,
+    lesson_id: String,
     weeks: [Number], // Week numbers, [1-17]
     day: Number, // Day number in week, 1-6
     num: Number, // Lesson number in day, 1-7
@@ -90,7 +90,7 @@ const lessonSchema = new Schema({
 });
 
 export interface ILesson {
-    lesson_id: number;
+    lesson_id: string;
     weeks: number[];
     day: number;
     num: number;
@@ -98,7 +98,7 @@ export interface ILesson {
 }
 
 const homeworkSchema = new Schema({
-    homework_id: Number,
+    homework_id: String,
     week: Number,
     day: Number,
     text: String,
@@ -106,7 +106,7 @@ const homeworkSchema = new Schema({
 });
 
 export interface IHomework {
-    homework_id: number;
+    homework_id: string;
     week: number;
     day: number;
     text: string;
@@ -114,7 +114,7 @@ export interface IHomework {
 }
 
 const subjectSchema = new Schema({
-    subject_id: Number,
+    subject_id: String,
     group_id: Number,
     name: String,
     lessons: [lessonSchema],
@@ -122,8 +122,8 @@ const subjectSchema = new Schema({
 });
 
 export interface ISubject {
-    subject_id: number;
-    group_id: number;
+    subject_id: string;
+    group_id: string;
     name: string;
     lessons: ILesson[];
     homeworks: IHomework[];

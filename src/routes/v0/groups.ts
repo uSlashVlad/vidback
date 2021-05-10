@@ -27,9 +27,7 @@ router.post('/create', upload.none(), async (req, res) => {
         return;
     }
 
-    body.group_id = genId(1);
-    while ((await groups.findOne({ group_id: body.group_id })) != null)
-        body.group_id = genId(1);
+    body.group_id = genId('1');
     body.password = sha512(body.password);
     body.admin_code = sha256(body.admin_code);
 
@@ -84,14 +82,7 @@ router.post('/login', upload.none(), async (req, res) => {
         return;
     }
 
-    let id = genId(2);
-    while (
-        (await groups.findOne({
-            short_name: body.groupname,
-            'users.user_id': id,
-        })) != null
-    )
-        id = genId(1);
+    let id = genId('2');
 
     thisGroup.users.push({
         user_id: id,
@@ -128,10 +119,10 @@ router.delete('/users/:userId', async (req, res) => {
     const user = await checkUserAdmin(res, tokenData);
     if (user == null) return;
 
-    const userId = +req.params.userId;
-    if (userId == null || isNaN(userId)) {
+    const userId = req.params.userId;
+    if (userId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified or it is not number' });
+        res.send({ error: 'no subject id specified' });
         return;
     }
 
