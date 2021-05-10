@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { v0Root } from './routes/v0/root';
+import { expressLogger } from './loggers';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -10,10 +11,7 @@ app.use(express.json());
 
 const pathStart = ''; // may be "/api" for example
 
-app.all('*', (req, _, next) => {
-    console.log(`${req.method}: ${req.url}`);
-    next();
-});
+app.use(expressLogger);
 
 app.use(`${pathStart}/v0`, v0Root);
 app.use(`${pathStart}/`, v0Root);

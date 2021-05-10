@@ -47,7 +47,7 @@ export async function checkUser(res: Response, tokenData: JWTData) {
     if (user == null) {
         res.status(403);
         res.send({ error: 'this users was deleted or banned' });
-        return;
+        return null;
     }
 
     return user;
@@ -59,7 +59,7 @@ export async function checkUserAdmin(res: Response, tokenData: JWTData) {
     if (user == null || !user.is_group_admin) {
         res.status(403);
         res.send({ error: "only group's admin can use it" });
-        return;
+        return null;
     }
 
     return user;
