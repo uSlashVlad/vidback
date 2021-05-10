@@ -41,7 +41,7 @@ router.get('/:id', async (req, res) => {
     const subjectId = req.params.id;
     if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject_id specified' });
+        res.send({ error: 'no subject_id specified', code: 3 });
         return;
     }
 
@@ -62,7 +62,7 @@ router.post('/', upload.none(), async (req, res) => {
     const name: string = req.body.name;
     if (name == null) {
         res.status(400);
-        res.send({ error: 'no subject name specified' });
+        res.send({ error: 'no subject name specified', code: 3 });
         return;
     }
 
@@ -92,14 +92,14 @@ router.delete('/:id', async (req, res) => {
     const subjectId = req.params.id;
     if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified' });
+        res.send({ error: 'no subject id specified', code: 3 });
         return;
     }
 
     const thisSubject = await subjects.findOne({ subject_id: subjectId });
     if (thisSubject == null) {
         res.status(400);
-        res.send({ error: 'no such subject found' });
+        res.send({ error: 'no such subject found', code: 6 });
         return;
     }
 
@@ -117,20 +117,20 @@ router.put('/:id', upload.none(), async (req, res) => {
     const subjectId = req.params.id;
     if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified' });
+        res.send({ error: 'no subject id specified', code: 3 });
         return;
     }
     const name: string = req.body.name;
     if (name == null) {
         res.status(400);
-        res.send({ error: 'no changes cpecified' });
+        res.send({ error: 'no changes cpecified', code: 3 });
         return;
     }
 
     const thisSubject = await subjects.findOne({ subject_id: subjectId });
     if (thisSubject == null) {
         res.status(400);
-        res.send({ error: 'no such subject found' });
+        res.send({ error: 'no such subject found', code: 6 });
         return;
     }
 

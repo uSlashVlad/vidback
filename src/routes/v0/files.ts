@@ -17,7 +17,7 @@ router.all('*', async (req, res, next) => {
 router.post('/photo', upload.single('photo'), (req, res) => {
     if (req.file == null) {
         res.status(400);
-        res.send({ error: 'incorrect file' });
+        res.send({ error: 'incorrect file', code: 2 });
         return;
     }
 

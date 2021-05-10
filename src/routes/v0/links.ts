@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
     const linkId = req.params.id;
     if (linkId == null) {
         res.status(400);
-        res.send({ error: 'no link_id specified' });
+        res.send({ error: 'no link_id specified', code: 3 });
         return;
     }
 
@@ -39,7 +39,7 @@ router.get('/:id', async (req, res) => {
     );
     if (thisLink == null) {
         res.status(400);
-        res.send({ error: 'no such link found' });
+        res.send({ error: 'no such link found', code: 6 });
         return;
     }
 
@@ -55,7 +55,7 @@ router.post('/', upload.none(), async (req, res) => {
     const body: ILink = req.body;
     if (body.name == null || body.url == null) {
         res.status(400);
-        res.send({ error: 'not enought data' });
+        res.send({ error: 'not enought data', code: 3 });
         return;
     }
 
@@ -77,7 +77,7 @@ router.delete('/:id', async (req, res) => {
     const linkId = req.params.id;
     if (linkId == null) {
         res.status(400);
-        res.send({ error: 'no link_id specified' });
+        res.send({ error: 'no link_id specified', code: 3 });
         return;
     }
 
@@ -87,14 +87,14 @@ router.delete('/:id', async (req, res) => {
     });
     if (thisLink == null) {
         res.status(400);
-        res.send({ error: 'no such link found' });
+        res.send({ error: 'no such link found', code: 6 });
         return;
     }
 
     if (!user.is_group_admin && thisLink.user_id != tokenData.user) {
         res.status(403);
         res.send({
-            error: "only group admin or link's creator can delete the link",
+            error: "only group admin or link's creator can delete the link", code: 5
         });
         return;
     }
@@ -112,14 +112,14 @@ router.put('/:id', upload.none(), async (req, res) => {
     const body: ILink = req.body;
     if (body.name == null && body.url == null) {
         res.status(400);
-        res.send({ error: 'no changes specified' });
+        res.send({ error: 'no changes specified', code: 3 });
         return;
     }
 
     const linkId = req.params.id;
     if (linkId == null) {
         res.status(400);
-        res.send({ error: 'no link_id specified' });
+        res.send({ error: 'no link_id specified', code: 3 });
         return;
     }
 
@@ -129,13 +129,13 @@ router.put('/:id', upload.none(), async (req, res) => {
     });
     if (thisLink == null) {
         res.status(400);
-        res.send({ error: 'no such link found' });
+        res.send({ error: 'no such link found', code: 6 });
         return;
     }
 
     if (thisLink.user_id != tokenData.user) {
         res.status(403);
-        res.send({ error: 'only creator of link can edit it' });
+        res.send({ error: 'only creator of link can edit it', code: 5 });
         return;
     }
 

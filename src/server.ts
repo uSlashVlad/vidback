@@ -18,7 +18,7 @@ app.use(`${pathStart}/`, v0Root);
 
 app.all('*', (_, res) => {
     res.status(404);
-    res.send({ error: 'No such method found' });
+    res.send({ error: 'No such method found', code: 6 });
 });
 
 app.listen(process.env.SERVER_PORT, () => {

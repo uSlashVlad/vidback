@@ -19,7 +19,7 @@ idRouter.get('/', async (req, res) => {
     const subjectId = req.params.subjectId;
     if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified' });
+        res.send({ error: 'no subject id specified', code: 3 });
         return;
     }
 
@@ -32,7 +32,7 @@ idRouter.get('/', async (req, res) => {
     );
     if (thisSubject == null) {
         res.status(400);
-        res.send({ error: 'no such subject exists' });
+        res.send({ error: 'no such subject exists', code: 6 });
         return;
     }
 
@@ -48,7 +48,7 @@ idRouter.post('/', upload.none(), async (req, res) => {
     const subjectId = req.params.subjectId;
     if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified' });
+        res.send({ error: 'no subject id specified', code: 3 });
         return;
     }
 
@@ -58,7 +58,7 @@ idRouter.post('/', upload.none(), async (req, res) => {
     if (typeof body.day == 'string') body.day = +body.day;
     if (body.week == null || body.day == null) {
         res.status(400);
-        res.send({ error: 'not enought data' });
+        res.send({ error: 'not enought data', code: 3 });
         return;
     }
 
@@ -69,7 +69,7 @@ idRouter.post('/', upload.none(), async (req, res) => {
 
     if (!okWeek || !okDay) {
         res.status(400);
-        res.send({ error: 'incorrect data' });
+        res.send({ error: 'incorrect data', code: 2 });
         return;
     }
 
@@ -79,7 +79,7 @@ idRouter.post('/', upload.none(), async (req, res) => {
     });
     if (data == null) {
         res.status(400);
-        res.send({ error: 'no such subject found' });
+        res.send({ error: 'no such subject found', code: 6 });
         return;
     }
 
@@ -100,14 +100,14 @@ idRouter.delete('/:homeworkId', async (req, res) => {
     const subjectId = req.params.subjectId;
     if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified' });
+        res.send({ error: 'no subject id specified', code: 3 });
         return;
     }
 
     const homeworkId = req.params.homeworkId;
     if (homeworkId == null) {
         res.status(400);
-        res.send({ error: 'no homework id specifiedr' });
+        res.send({ error: 'no homework id specified', code: 3 });
         return;
     }
 
@@ -118,7 +118,7 @@ idRouter.delete('/:homeworkId', async (req, res) => {
     });
     if (thisSubject == null) {
         res.status(400);
-        res.send({ error: 'no such homework exists' });
+        res.send({ error: 'no such homework exists', code: 6 });
         return;
     }
 
@@ -143,14 +143,14 @@ idRouter.put('/:homeworkId', upload.none(), async (req, res) => {
     const subjectId = req.params.subjectId;
     if (subjectId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified' });
+        res.send({ error: 'no subject id specified', code: 3 });
         return;
     }
 
     const homeworkId = req.params.homeworkId;
     if (homeworkId == null) {
         res.status(400);
-        res.send({ error: 'no homework id specified' });
+        res.send({ error: 'no homework id specified', code: 3 });
         return;
     }
 
@@ -167,7 +167,7 @@ idRouter.put('/:homeworkId', upload.none(), async (req, res) => {
         body.files == null
     ) {
         res.status(400);
-        res.send({ error: 'not enought data' });
+        res.send({ error: 'not enought data', code: 3 });
         return;
     }
 
@@ -178,7 +178,7 @@ idRouter.put('/:homeworkId', upload.none(), async (req, res) => {
 
     if (!okWeek || !okDay) {
         res.status(400);
-        res.send({ error: 'incorrect data' });
+        res.send({ error: 'incorrect data', code: 2 });
         return;
     }
 
@@ -192,7 +192,7 @@ idRouter.put('/:homeworkId', upload.none(), async (req, res) => {
     );
     if (thisSubject == null) {
         res.status(400);
-        res.send({ error: 'no such homework exists' });
+        res.send({ error: 'no such homework exists', code: 6 });
         return;
     }
 
@@ -223,7 +223,7 @@ allRouter.get('/', async (req, res) => {
     const weekNumber = +req.query.week;
     if (weekNumber == null || isNaN(weekNumber)) {
         res.status(400);
-        res.send({ error: 'no week number specified' });
+        res.send({ error: 'no week number specified', code: 3 });
         return;
     }
 

@@ -16,14 +16,14 @@ router.post('/create', upload.none(), async (req, res) => {
         body.admin_code == null
     ) {
         res.status(400);
-        res.send({ error: 'not enought data' });
+        res.send({ error: 'not enought data', code: 3 });
         return;
     }
 
     const gr = await groups.findOne({ short_name: body.short_name });
     if (gr != null) {
         res.status(400);
-        res.send({ error: 'such group is already exists' });
+        res.send({ error: 'such group is already exists', code: 7 });
         return;
     }
 
@@ -56,20 +56,20 @@ router.post('/login', upload.none(), async (req, res) => {
         body.username == null
     ) {
         res.status(400);
-        res.send({ error: 'not enought data' });
+        res.send({ error: 'not enought data', code: 3 });
         return;
     }
 
     const thisGroup = await groups.findOne({ short_name: body.groupname });
     if (thisGroup == null) {
         res.status(400);
-        res.send({ error: 'no such group' });
+        res.send({ error: 'no such group', code: 6 });
         return;
     }
 
     if (sha512(body.password) != thisGroup.password) {
         res.status(400);
-        res.send({ error: 'incorrect group password' });
+        res.send({ error: 'incorrect group password', code: 2 });
         return;
     }
 
@@ -78,7 +78,7 @@ router.post('/login', upload.none(), async (req, res) => {
         sha256(body.admin_code) != thisGroup.admin_code
     ) {
         res.status(400);
-        res.send({ error: 'incorrect admin code' });
+        res.send({ error: 'incorrect admin code', code: 2 });
         return;
     }
 
@@ -106,7 +106,7 @@ router.get('/users', async (req, res) => {
     );
     if (thisGroup == null) {
         res.status(400);
-        res.send({ error: 'no such group' });
+        res.send({ error: 'no such group', code: 6 });
         return;
     }
 
@@ -122,14 +122,14 @@ router.delete('/users/:userId', async (req, res) => {
     const userId = req.params.userId;
     if (userId == null) {
         res.status(400);
-        res.send({ error: 'no subject id specified' });
+        res.send({ error: 'no subject id specified', code: 3 });
         return;
     }
 
     const thisGroup = await groups.findOne({ group_id: tokenData.group });
     if (thisGroup == null) {
         res.status(400);
-        res.send({ error: 'no such group' });
+        res.send({ error: 'no such group', code: 6 });
         return;
     }
 
@@ -139,7 +139,7 @@ router.delete('/users/:userId', async (req, res) => {
     );
     if (updRes.n == 0) {
         res.status(400);
-        res.send({ error: 'no such user found' });
+        res.send({ error: 'no such user found', code: 6 });
         return;
     }
 
@@ -155,7 +155,7 @@ router.delete('/this', async (req, res) => {
     const delRes = await groups.deleteOne({ group_id: tokenData.group });
     if (delRes.deletedCount == 0) {
         res.status(400);
-        res.send({ error: 'no such group found?' });
+        res.send({ error: 'no such group found?', code: 6 });
         return;
     }
 

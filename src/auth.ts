@@ -32,13 +32,13 @@ export function checkToken(req: Request, res: Response) {
 
     if (token == null) {
         res.status(401);
-        res.send({ error: 'no token specified' });
+        res.send({ error: 'no token specified', code: 3 });
         return null;
     }
     const tokenData = jwtRead(token);
     if (tokenData == null) {
         res.status(401);
-        res.send({ error: 'incorrect token' });
+        res.send({ error: 'incorrect token', code: 2 });
         return null;
     }
 
@@ -50,7 +50,7 @@ export async function checkUser(res: Response, tokenData: JWTData) {
 
     if (user == null) {
         res.status(403);
-        res.send({ error: 'this users was deleted or banned' });
+        res.send({ error: 'this users was deleted or banned', code: 5 });
         return null;
     }
 
@@ -62,7 +62,7 @@ export async function checkUserAdmin(res: Response, tokenData: JWTData) {
 
     if (user == null || !user.is_group_admin) {
         res.status(403);
-        res.send({ error: "only group's admin can use it" });
+        res.send({ error: "only group's admin can use it", code: 5 });
         return null;
     }
 
