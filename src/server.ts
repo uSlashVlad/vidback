@@ -5,6 +5,15 @@ dotenv.config();
 import { v0Root } from './routes/v0/root';
 import { expressLogger } from './loggers';
 
+const startTime = new Date().toLocaleString('ru-RU', {
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+});
+console.log(`Host time: ${startTime}`);
+
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

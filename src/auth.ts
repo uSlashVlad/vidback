@@ -20,7 +20,8 @@ export async function getUser(group: string, user: string) {
     return res[0] as IUser;
 }
 
-const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const alphabet =
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const nanoid = customAlphabet(alphabet, 14);
 
 export function genId(base: string) {

@@ -94,7 +94,8 @@ router.delete('/:id', async (req, res) => {
     if (!user.is_group_admin && thisLink.user_id != tokenData.user) {
         res.status(403);
         res.send({
-            error: "only group admin or link's creator can delete the link", code: 5
+            error: "only group admin or link's creator can delete the link",
+            code: 5,
         });
         return;
     }
