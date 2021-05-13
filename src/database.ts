@@ -115,7 +115,7 @@ export interface IHomework {
 
 const subjectSchema = new Schema({
     subject_id: String,
-    group_id: Number,
+    group_id: String,
     name: String,
     lessons: [lessonSchema],
     homeworks: [homeworkSchema],
