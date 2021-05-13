@@ -20,7 +20,7 @@ db.once('open', () => console.log('Connected to DB!'));
 // -- Data models for groups --
 // ----------------------------
 const userSchema = new Schema({
-    user: String,
+    user_id: String,
     username: String,
     is_group_admin: Boolean,
 });

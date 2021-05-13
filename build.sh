@@ -1,0 +1,1 @@
+tsc ./src/server.ts --outDir ./build
